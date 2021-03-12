@@ -1,0 +1,12 @@
+[
+  {"model": "asset.datatype", "pk": "ShortText", "fields": {}},
+  {"model": "asset.datatype", "pk": "LongText", "fields": {}},
+  {"model": "asset.datatype", "pk": "Boolean", "fields": {}},
+  {"model": "asset.datatype", "pk": "Image", "fields": {}},
+  {"model": "asset.datatype", "pk": "File", "fields": {}},
+  {"model": "asset.datatype", "pk": "Integer", "fields": {}},
+  {"model": "asset.datatype", "pk": "PositiveInteger", "fields": {}},
+  {"model": "asset.datatype", "pk": "Date", "fields": {}},
+  {"model": "asset.datatype", "pk": "Time", "fields": {}},
+  {"model": "asset.datatype", "pk": "DateTime", "fields": {}}
+]
