@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     path('tree', views.tree_diagram),
-    path('add/<slug:object>', views.add)
+    path('add/<slug:db_object>', views.add)
 ]
