@@ -20,22 +20,22 @@ class AddObjectData(forms.Form):
                 data_objects_list = models.ObjectDataLink.objects.filter(object=choice_type)
                 # Loop through all objects of that specific type
                 for data in data_objects_list:
+                    friendly_name_list = []
                     # Prioritise friendly field, then fallback to order
                     # Get a list of all the friendly fields
                     friendly_name_fields = models.Field.objects.filter(parent_object=choice_type, friendly_field=True)
                     if friendly_name_fields:
-                        friendly_name = []
                         for friendly_field in friendly_name_fields:
                             friendly_field_data = models.Data.objects.get(field_id=friendly_field, object_uid=data)
-                            friendly_name.append(friendly_field_data.get_value())
-
-                        # Join all the fields names together with a space inbetween
-                        friendly_name = " ".join(friendly_name)
+                            friendly_name_list.append(friendly_field_data.get_value())
                     else:
                         # If no friendly field has been set, get the first field of the object
                         friendly_name_field = models.Field.objects.filter(parent_object=choice_type).first()
-                        friendly_name_data = models.Data.objects.get(field_id=friendly_name_field, object_uid=data)
-                        friendly_name.append(friendly_field_data.get_value())
+                        friendly_field_data = models.Data.objects.get(field_id=friendly_name_field, object_uid=data)
+                        friendly_name_list.append(friendly_field_data.get_value())
+
+                    # Join all the fields names together with a space inbetween
+                    friendly_name = " ".join(friendly_name_list)
 
                     # Append the data to the choice field
                     choices.append((data.object_uid, friendly_name))
