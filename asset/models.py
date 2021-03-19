@@ -6,10 +6,9 @@ from django.db import models
 # Object model
 class Object(models.Model):
     name = models.CharField(max_length=32, primary_key=True)
-    friendly_name = models.CharField(max_length=32, default=name.__str__())
+    friendly_name = models.CharField(max_length=32)
     desc = models.CharField(max_length=255)
     active = models.BooleanField(default=True)
-    parent_object = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -18,7 +17,6 @@ class Object(models.Model):
 # Object data link model
 class ObjectDataLink(models.Model):
     object_uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
-    parent_object_uid = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True)
     object = models.ForeignKey("Object", on_delete=models.CASCADE)
 
     def __str__(self):
@@ -46,6 +44,32 @@ class Data(models.Model):
 
     def __str__(self):
         return "%s - %s" % (self.object_uid.__str__(), self.field_id.__str__())
+
+    # Get the data value
+    # TODO: clean this function up
+    def get_value(self):
+        if hasattr(self, "shorttext"):
+            return self.shorttext.value
+        if hasattr(self, "longtext"):
+            return self.longtext.value
+        if hasattr(self, "boolean"):
+            return self.boolean.value
+        if hasattr(self, "image"):
+            return self.image.value
+        if hasattr(self, "file"):
+            return self.file.value
+        if hasattr(self, "integer"):
+            return self.integer.value
+        if hasattr(self, "positiveinteger"):
+            return self.positiveinteger.value
+        if hasattr(self, "date"):
+            return self.date.value
+        if hasattr(self, "time"):
+            return self.time.value
+        if hasattr(self, "datetime"):
+            return self.datetime.value
+        if hasattr(self, "singlechoice"):
+            return self.singlechoice.value
 
 
 # Types of data
@@ -134,14 +158,25 @@ class DateTime(models.Model):
 
 
 # TODO: Multi-choice
-# TODO: Single-choice / Select box
+class SingleChoice(models.Model):
+    data = models.OneToOneField(Data, on_delete=models.PROTECT, primary_key=True)
+    value = models.ForeignKey(ObjectDataLink, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.value
 
 
 # Field
 class Field(models.Model):
-    object = models.ForeignKey(Object, on_delete=models.CASCADE)
+    field_id = models.OneToOneField(Object, on_delete=models.PROTECT, primary_key=True)
+    parent_object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name='parent')
     data_type = models.ForeignKey(DataType, on_delete=models.PROTECT)
+    friendly_field = models.BooleanField(default=False)
     order = models.fields.IntegerField(default=0)
+    choice_type = models.ForeignKey(Object, on_delete=models.CASCADE, null=True, blank=True, related_name='choice_type')
 
     def __str__(self):
-        return self.object.__str__()
+        return self.field_id.__str__()
+
+    class Meta:
+        ordering = ["order"]
