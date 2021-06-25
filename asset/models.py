@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+import asset
 
 
 # Object model
@@ -21,6 +22,19 @@ class ObjectDataLink(models.Model):
 
     def __str__(self):
         return str(self.object) + " - " + str(self.object_uid)
+
+    def get_data(self):
+        object_data = Data.objects.filter(object_uid=self)
+        object_field_data = []
+
+        for field_data in object_data:
+            field_id = field_data.field_id
+            field = Field.objects.get(name=field_id)
+            data_type = field.data_type
+            data_type_model = asset.models.__dict__.get(data_type.name)
+            object_field_data.append(data_type_model.objects.get(data=field_data))
+
+        return object_field_data
 
 
 # Data type lookup table
