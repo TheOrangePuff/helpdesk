@@ -2,10 +2,6 @@
 
 {% block content %}
     {% for object in objects %}
-        {% if object.parent_object_id %}
-            <p>{{ object }}</p>
-        {% else %}
-            <p>ROOT {{ object }}</p>
-        {% endif %}
+        <p>{{ object }}</p>
     {% endfor %}
 {% endblock %}

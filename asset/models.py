@@ -5,13 +5,13 @@ from django.db import models
 
 # Object model
 class Object(models.Model):
-    name = models.CharField(max_length=32, primary_key=True)
+    name = models.SlugField(max_length=32, primary_key=True)
     friendly_name = models.CharField(max_length=32)
     desc = models.CharField(max_length=255)
     active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 # Object data link model
@@ -20,7 +20,7 @@ class ObjectDataLink(models.Model):
     object = models.ForeignKey("Object", on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.object_uid.__str__()
+        return str(self.object) + " - " + str(self.object_uid)
 
 
 # Data type lookup table
@@ -28,7 +28,7 @@ class DataType(models.Model):
     name = models.CharField(max_length=32, primary_key=True)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 # Data
@@ -43,7 +43,7 @@ class Data(models.Model):
         unique_together = (("object_uid", "field_id"), )
 
     def __str__(self):
-        return "%s - %s" % (self.object_uid.__str__(), self.field_id.__str__())
+        return "%s - %s" % (str(self.object_uid), str(self.field_id))
 
     # Get the data value
     # TODO: clean this function up
@@ -79,7 +79,7 @@ class ShortText(models.Model):
     value = models.CharField(max_length=32)
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 # Long text
@@ -88,7 +88,7 @@ class LongText(models.Model):
     value = models.CharField(max_length=1024)
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 # Boolean
@@ -97,7 +97,7 @@ class Boolean(models.Model):
     value = models.BooleanField()
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 # Image
@@ -118,7 +118,7 @@ class Integer(models.Model):
     value = models.IntegerField()
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 # Positive Integer
@@ -127,7 +127,7 @@ class PositiveInteger(models.Model):
     value = models.PositiveIntegerField()
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 # Date
@@ -136,7 +136,7 @@ class Date(models.Model):
     value = models.DateField()
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 # Time
@@ -145,7 +145,7 @@ class Time(models.Model):
     value = models.TimeField()
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 # Date Time
@@ -154,7 +154,7 @@ class DateTime(models.Model):
     value = models.DateTimeField()
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 # TODO: Multi-choice
@@ -163,12 +163,14 @@ class SingleChoice(models.Model):
     value = models.ForeignKey(ObjectDataLink, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 # Field
 class Field(models.Model):
-    field_id = models.OneToOneField(Object, on_delete=models.PROTECT, primary_key=True)
+    name = models.SlugField(max_length=32, primary_key=True)
+    friendly_name = models.CharField(max_length=32)
+    desc = models.CharField(max_length=255)
     parent_object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name='parent')
     data_type = models.ForeignKey(DataType, on_delete=models.PROTECT)
     friendly_field = models.BooleanField(default=False)
@@ -176,7 +178,7 @@ class Field(models.Model):
     choice_type = models.ForeignKey(Object, on_delete=models.CASCADE, null=True, blank=True, related_name='choice_type')
 
     def __str__(self):
-        return self.field_id.__str__()
+        return str(self.name)
 
     class Meta:
         ordering = ["order"]

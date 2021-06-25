@@ -4,14 +4,15 @@ from . import models
 
 
 class AddObjectData(forms.Form):
-    def __init__(self, object_name, *args, **kwargs):
-        super().__init__()
-        form_object = models.Object.objects.get(name=object_name)
-        fields = models.Field.objects.filter(parent_object=form_object)
+    def __init__(self, *args, **kwargs):
+        self.object_name = kwargs.pop("object_name")
+        super(AddObjectData, self).__init__(*args, **kwargs)
+        self.form_object = models.Object.objects.get(name=self.object_name)
+        self.dynamic_fields = models.Field.objects.filter(parent_object=self.form_object)
 
         # Loop through all the fields
         field_list = {}
-        for field in fields:
+        for field in self.dynamic_fields:
             choices = []
             data_type = field.data_type.name
 
@@ -55,7 +56,7 @@ class AddObjectData(forms.Form):
                 'SingleChoice': forms.ChoiceField(choices=choices)
             }
 
-            friendly_name = field.field_id.friendly_name
+            friendly_name = field.friendly_name
             self.fields[friendly_name] = form_fields[data_type]
 
             # Generate a list of fields including their order
@@ -76,3 +77,23 @@ class AddObjectData(forms.Form):
 
         # Order the fields
         self.order_fields(field_order)
+
+    def save(self, commit=False):
+        # Create the object data link
+        object_data_link = models.ObjectDataLink.objects.create(object=self.form_object)
+
+        for field in self.dynamic_fields:
+            # Get the data type
+            data_type = field.data_type
+            data_type_model = models.__dict__.get(data_type.name)
+            # Create a link to the data
+            data = models.Data.objects.create(object_uid=object_data_link, field_id=field)
+            # Create the record in the appropriate data type table
+            value = self.data[field.friendly_name]
+            if field.data_type_id == 'SingleChoice':
+                value = models.ObjectDataLink.objects.get(object_uid=self.data[field.friendly_name])
+
+            record = data_type_model.objects.create(data=data, value=value)
+
+    def is_valid(self):
+        return True
