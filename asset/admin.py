@@ -67,6 +67,11 @@ class ObjectDateTime(admin.ModelAdmin):
     pass
 
 
+@admin.register(models.SingleChoice)
+class ObjectDateTime(admin.ModelAdmin):
+    pass
+
+
 @admin.register(models.Field)
 class ObjectField(admin.ModelAdmin):
     pass

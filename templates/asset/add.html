@@ -1,5 +1,9 @@
 {% extends 'master.html' %}
 
 {% block content %}
-    {{ form }}
+    <form method="POST">
+        {{ form }}
+        {% csrf_token %}
+        <input type="submit" name="submit" value="Save" />
+    </form>
 {% endblock %}

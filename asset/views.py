@@ -15,6 +15,14 @@ def tree_diagram(request):
 def add(request, db_object):
     template = 'asset/add.html'
 
-    form = forms.AddObjectData(db_object)
+    if request.method == 'POST':
+        form = forms.AddObjectData(data=request.POST, object_name=db_object)
+        # check whether it's valid:
+        if form.is_valid():
+            # Save the form and return a blank form
+            form.save()
+            form = forms.AddObjectData(object_name=db_object)
+    else:
+        form = forms.AddObjectData(object_name=db_object)
 
     return render(request, template, {'form': form})

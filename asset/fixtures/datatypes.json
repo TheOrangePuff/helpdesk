@@ -8,5 +8,6 @@
   {"model": "asset.datatype", "pk": "PositiveInteger", "fields": {}},
   {"model": "asset.datatype", "pk": "Date", "fields": {}},
   {"model": "asset.datatype", "pk": "Time", "fields": {}},
-  {"model": "asset.datatype", "pk": "DateTime", "fields": {}}
+  {"model": "asset.datatype", "pk": "DateTime", "fields": {}},
+  {"model": "asset.datatype", "pk": "SingleChoice", "fields": {}}
 ]
