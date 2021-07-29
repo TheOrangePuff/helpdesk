@@ -32,7 +32,18 @@ class ObjectDataLink(models.Model):
             field = Field.objects.get(name=field_id)
             data_type = field.data_type
             data_type_model = asset.models.__dict__.get(data_type.name)
-            object_field_data.append(data_type_model.objects.get(data=field_data))
+            data = data_type_model.objects.get(data=field_data)
+
+            if data_type_model == SingleChoice:
+                object_uid = data.value.object_uid
+                object_data = ObjectDataLink.objects.get(object_uid=object_uid).get_data()
+
+                for object in object_data:
+                    # TODO: get friendly field
+                    friendly = object.data.field_id.friendly_field
+                    object_field_data.append(object)
+            else:
+                object_field_data.append(data)
 
         return object_field_data
 
@@ -177,7 +188,7 @@ class SingleChoice(models.Model):
     value = models.ForeignKey(ObjectDataLink, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.value)
+        return str(self.value.get_data())
 
 
 # Field
