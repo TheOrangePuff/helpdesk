@@ -35,6 +35,8 @@ def view(request, db_object):
 
     object_list = []
     for data in object_data_links:
+        # TODO: add a link for choice fields to display the selected data in full
+        #       e.g click the laptop serial number to go to asset/view/laptop/uid
         object_list.append(data.get_data())
 
     return render(request, template, {'object_list': object_list})

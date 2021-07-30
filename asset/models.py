@@ -23,7 +23,6 @@ class ObjectDataLink(models.Model):
     def __str__(self):
         return str(self.object) + " - " + str(self.object_uid)
 
-    # TODO: support choices embedded in choices
     def get_data(self):
         object_data = Data.objects.filter(object_uid=self)
         object_field_data = []
@@ -35,51 +34,7 @@ class ObjectDataLink(models.Model):
             data_type_model = asset.models.__dict__.get(data_type.name)
             data = data_type_model.objects.get(data=field_data)
 
-            # If there is a choice field get the underlying data value
-            # TODO: or if multichoice
-            # TODO: refactor this under the to string method in the single choice class
-            if data_type_model == SingleChoice:
-                object_uid = data.value.object_uid
-                object_data = ObjectDataLink.objects.get(object_uid=object_uid).get_data()
-
-                friendly_data = []
-                field_list = {}
-                for object in object_data:
-                    order = object.data.field_id.order
-                    friendly = object.data.field_id.friendly_field
-
-                    # Generate a list of fields including their order
-                    # If the order number isn't already in the list, add it
-                    if field_list.get(order) is None:
-                        field_list[order] = [friendly, object]
-                    else:
-                        field_list[order] = [field_list[order][0], [friendly, object]]
-
-                # Sort the field by order
-                field_list = sorted(field_list.items())
-
-                # Generate the list to order the fields by
-                field_order = []
-                for field in field_list:
-                    field_order.append(field[1][0])
-
-                # If there is a friendly field
-                if True in field_order:
-                    # Get all the friendly fields and append to a list
-                    for i, field in enumerate(field_order):
-                        if field:
-                            friendly_data.append(str(field_list[i][1][1]))
-
-                # If there are no friendly fields fall back to order
-                if not friendly_data:
-                    friendly_data.append(str(field_list[0][1][1]))
-
-                # Join all field names together to form a string
-                friendly_data_name = " - ".join(friendly_data)
-
-                object_field_data.append(friendly_data_name)
-            else:
-                object_field_data.append(data)
+            object_field_data.append(data)
 
         return object_field_data
 
@@ -218,13 +173,62 @@ class DateTime(models.Model):
         return str(self.value)
 
 
+# Base choice class
+class Choice(models.Model):
+    class Meta:
+        abstract = True
+
+    @property
+    def value(self):
+        pass
+
+    # TODO: support choices embedded in choices
+    def __str__(self):
+        object_uid = self.value.object_uid
+        object_data = ObjectDataLink.objects.get(object_uid=object_uid).get_data()
+
+        friendly_data = []
+        field_list = {}
+        for object in object_data:
+            order = object.data.field_id.order
+            friendly = object.data.field_id.friendly_field
+
+            # Generate a list of fields including their order
+            # If the order number isn't already in the list, add it
+            if field_list.get(order) is None:
+                field_list[order] = [friendly, object]
+            else:
+                field_list[order] = [field_list[order][0], [friendly, object]]
+
+        # Sort the field by order
+        field_list = sorted(field_list.items())
+
+        # Generate the list to order the fields by
+        field_order = []
+        for field in field_list:
+            field_order.append(field[1][0])
+
+        # If there is a friendly field
+        if True in field_order:
+            # Get all the friendly fields and append to a list
+            for i, field in enumerate(field_order):
+                if field:
+                    friendly_data.append(str(field_list[i][1][1]))
+
+        # If there are no friendly fields fall back to order
+        if not friendly_data:
+            friendly_data.append(str(field_list[0][1][1]))
+
+        # Join all field names together to form a string
+        friendly_data_name = " - ".join(friendly_data)
+
+        return friendly_data_name
+
+
 # TODO: Multi-choice
-class SingleChoice(models.Model):
+class SingleChoice(Choice):
     data = models.OneToOneField(Data, on_delete=models.PROTECT, primary_key=True)
     value = models.ForeignKey(ObjectDataLink, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return str(self.value.get_data())
 
 
 # Field
