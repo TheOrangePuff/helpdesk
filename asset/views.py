@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from django.forms import modelformset_factory
+
+import asset.views
 from . import forms
 from . import models
 
@@ -52,7 +54,8 @@ def create(request):
         if form.is_valid():
             # Save the form and return a blank form
             form.save()
-            form = forms.ObjectCreationForm()
+            db_object = form.data.get('name')
+            return redirect('asset:edit', db_object=db_object)
     else:
         form = forms.ObjectCreationForm()
 
@@ -73,7 +76,6 @@ def edit(request, db_object):
             if form.is_valid():
                 # Save the form and return a blank form
                 form.save()
-                return redirect(create)
     else:
         formset = field_forms(queryset=queryset)
 
