@@ -1,0 +1,11 @@
+{% extends 'master.html' %}
+
+{% block content %}
+    <form method="POST">
+        {% csrf_token %}
+        {% for form in formset %}
+            <p>{{ form }}</p>
+        {% endfor %}
+        <input type="submit" name="submit" value="Save" />
+    </form>
+{% endblock %}

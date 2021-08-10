@@ -246,4 +246,4 @@ class Field(models.Model):
         return str(self.name)
 
     class Meta:
-        ordering = ["order"]
+        ordering = ["parent_object", "order"]
