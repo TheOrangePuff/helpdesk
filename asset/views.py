@@ -69,6 +69,10 @@ def edit(request, db_object):
                                        fields=fields)
     queryset = models.Field.objects.filter(parent_object=db_object)
 
+    # If the object doesn't exist redirect to the create page
+    if not models.Object.objects.filter(name=db_object):
+        return redirect('asset:create')
+
     if request.method == 'POST':
         formset = field_forms(request.POST, queryset=queryset)
         # check whether it's valid:
