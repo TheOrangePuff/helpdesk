@@ -63,8 +63,7 @@ def edit(request, db_object):
     template = 'asset/edit.html'
     fields = ('name', 'friendly_name', 'desc', 'data_type', 'friendly_field')
     field_forms = modelformset_factory(models.Field,
-                                       fields=fields,
-                                       formset=forms.FieldCreationFormSet)
+                                       fields=fields)
     queryset = models.Field.objects.filter(parent_object=db_object)
 
     if request.method == 'POST':
@@ -76,6 +75,6 @@ def edit(request, db_object):
                 form.save()
                 return redirect(create)
     else:
-        formset = field_forms(request.POST, queryset=queryset)
+        formset = field_forms(queryset=queryset)
 
     return render(request, template, {'formset': formset})
