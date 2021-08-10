@@ -97,3 +97,24 @@ class AddObjectData(forms.Form):
 
     def is_valid(self):
         return True
+
+
+class ObjectCreationForm(forms.ModelForm):
+    class Meta:
+        model = models.Object
+        fields = ['name', 'friendly_name', 'desc']
+
+
+class FieldCreationForm(forms.ModelForm):
+    class Meta:
+        model = models.Field
+        fields = ['name', 'friendly_name', 'desc', 'data_type', 'friendly_field']
+
+
+class FieldCreationFormSet(forms.BaseModelFormSet):
+    # I have no idea why `db_object` is required, if I remove it things stop working
+    # TODO: get rid of `db_object`
+    def __init__(self, db_object, *args, **kwargs):
+        #db_object = kwargs.pop('db_object')
+        super().__init__(*args, **kwargs)
+        #self.queryset = models.Field.objects.filter(parent_object=db_object)
