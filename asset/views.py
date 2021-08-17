@@ -73,13 +73,14 @@ def edit(request, db_object):
     if not models.Object.objects.filter(name=db_object):
         return redirect('asset:create')
 
+    # TODO: drag to reorder fields
+
     if request.method == 'POST':
-        formset = field_forms(request.POST, queryset=queryset)
+        formset = field_forms(queryset=queryset, data=request.POST)
         # check whether it's valid:
-        for form in formset:
-            if form.is_valid():
-                # Save the form and return a blank form
-                form.save()
+        if formset.is_valid():
+            # Save the form and return a blank form
+            formset.save()
     else:
         formset = field_forms(queryset=queryset)
 
