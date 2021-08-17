@@ -1,6 +1,6 @@
 # Helpdesk
 
-A very very early version of a flexible helpdesk and asset management system.
+A very very early and **non-functioning** version of a flexible helpdesk and asset management system.
 
 # License
 
