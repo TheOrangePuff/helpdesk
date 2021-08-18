@@ -14,6 +14,9 @@ class Object(models.Model):
     def __str__(self):
         return str(self.name)
 
+    def get_field_count(self):
+        return Field.objects.filter(parent_object=self).count()
+
 
 # Object data link model
 class ObjectDataLink(models.Model):
@@ -247,3 +250,4 @@ class Field(models.Model):
 
     class Meta:
         ordering = ["parent_object", "order"]
+        unique_together = (('parent_object', 'order'),)

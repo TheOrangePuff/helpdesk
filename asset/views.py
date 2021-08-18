@@ -64,13 +64,15 @@ def create(request):
 
 def edit(request, db_object):
     template = 'asset/edit.html'
-    fields = ('name', 'friendly_name', 'desc', 'data_type', 'friendly_field')
+    fields = ('name', 'friendly_name', 'desc', 'data_type', 'friendly_field', 'order')
     field_forms = modelformset_factory(models.Field,
-                                       fields=fields)
+                                       fields=fields,
+                                       can_delete=True)
     queryset = models.Field.objects.filter(parent_object=db_object)
+    parent_object = models.Object.objects.get(name=db_object)
 
     # If the object doesn't exist redirect to the create page
-    if not models.Object.objects.filter(name=db_object):
+    if not parent_object:
         return redirect('asset:create')
 
     # TODO: drag to reorder fields
@@ -79,8 +81,22 @@ def edit(request, db_object):
         formset = field_forms(queryset=queryset, data=request.POST)
         # check whether it's valid:
         if formset.is_valid():
-            # Save the form and return a blank form
-            formset.save()
+            # Process all the forms
+            formset.save(commit=False)
+            for field, _ in formset.changed_objects:
+                field.parent_object_id = parent_object
+                field.save()
+
+            for field in formset.new_objects:
+                field.parent_object_id = parent_object
+                field.save()
+
+            for field in formset.deleted_objects:
+                field.delete()
+
+            # Show the same form on submit but with the new data
+            queryset = models.Field.objects.filter(parent_object=db_object)
+            formset = field_forms(queryset=queryset)
     else:
         formset = field_forms(queryset=queryset)
 
