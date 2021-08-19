@@ -108,4 +108,4 @@ class ObjectCreationForm(forms.ModelForm):
 class FieldCreationForm(forms.ModelForm):
     class Meta:
         model = models.Field
-        fields = ['name', 'friendly_name', 'desc', 'data_type', 'friendly_field']
+        fields = ['name', 'friendly_name', 'desc', 'data_type', 'friendly_field', 'order']
