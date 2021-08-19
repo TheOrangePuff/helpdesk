@@ -66,7 +66,7 @@ def edit(request, db_object):
     template = 'asset/edit.html'
     fields = ('name', 'friendly_name', 'desc', 'data_type', 'friendly_field', 'order')
     field_forms = modelformset_factory(models.Field,
-                                       fields=fields,
+                                       form=forms.FieldCreationForm,
                                        can_delete=True)
     queryset = models.Field.objects.filter(parent_object=db_object)
     parent_object = models.Object.objects.get(name=db_object)

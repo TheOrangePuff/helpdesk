@@ -9,4 +9,7 @@
         {% endfor %}
         <input type="submit" name="submit" value="Save" />
     </form>
+    {% for error in formset.errors %}
+        <p>{{ error }}</p>
+    {% endfor %}
 {% endblock %}
