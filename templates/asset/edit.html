@@ -1,11 +1,11 @@
 {% extends 'master.html' %}
 
 {% block content %}
-    <form method="POST">
+    <form id="field_form" method="POST">
         {% csrf_token %}
         {{ formset.management_form }}
         {% for form in formset %}
-            <p>{{ form }}</p>
+            <p class="draggable">{{ form }}</p>
         {% endfor %}
         <input type="submit" name="submit" value="Save" />
     </form>
