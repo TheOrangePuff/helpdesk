@@ -64,7 +64,6 @@ def create(request):
 
 def edit(request, db_object):
     template = 'asset/edit.html'
-    fields = ('name', 'friendly_name', 'desc', 'data_type', 'friendly_field', 'order')
     field_forms = modelformset_factory(models.Field,
                                        form=forms.FieldCreationForm,
                                        can_delete=True)
