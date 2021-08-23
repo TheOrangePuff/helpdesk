@@ -68,7 +68,7 @@ def edit(request, db_object):
                                        form=forms.FieldCreationForm,
                                        can_delete=True)
     queryset = models.Field.objects.filter(parent_object=db_object)
-    parent_object = models.Object.objects.get(name=db_object)
+    parent_object = models.Object.objects.filter(name=db_object).first()
 
     # If the object doesn't exist redirect to the create page
     if not parent_object:
