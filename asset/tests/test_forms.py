@@ -29,8 +29,7 @@ class FieldCreationFormTestCase(TestCase):
                      'desc': 'The operating system the laptop is running.',
                      'data_type': 'ShortText'}
 
-        form = FieldCreationForm(parent_object='laptop')
-        form.data = form_data
+        form = FieldCreationForm(parent_object='laptop', data=form_data)
 
         self.assertTrue(form.is_valid())
         self.assertTrue(form.save())
@@ -40,8 +39,6 @@ class FieldCreationFormTestCase(TestCase):
                      'desc': 'The operating system the laptop is running.',
                      'data_type': 'ShortText'}
 
-        form = FieldCreationForm(parent_object='laptop')
-        form.data = form_data
+        form = FieldCreationForm(parent_object='laptop', data=form_data)
 
         self.assertFalse(form.is_valid())
-        self.assertFalse(form.save())

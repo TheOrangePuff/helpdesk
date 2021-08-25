@@ -181,10 +181,6 @@ class Choice(models.Model):
     class Meta:
         abstract = True
 
-    @property
-    def value(self):
-        pass
-
     # TODO: support choices embedded in choices
     def __str__(self):
         object_uid = self.value.object_uid
