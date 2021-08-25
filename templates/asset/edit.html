@@ -5,6 +5,9 @@
         {% csrf_token %}
         {{ formset.management_form }}
         {% for form in formset %}
+            {% comment %}
+            TODO: drag to reorder fields
+            {% endcomment %}
             <p class="draggable">{{ form }}</p>
         {% endfor %}
         <input type="submit" name="submit" value="Save" />

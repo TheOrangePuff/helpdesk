@@ -64,9 +64,6 @@ def create(request):
 
 def edit(request, db_object):
     template = 'asset/edit.html'
-    field_forms = modelformset_factory(models.Field,
-                                       form=forms.FieldCreationForm,
-                                       can_delete=True)
     queryset = models.Field.objects.filter(parent_object=db_object)
     parent_object = models.Object.objects.filter(name=db_object).first()
 
@@ -74,29 +71,25 @@ def edit(request, db_object):
     if not parent_object:
         return redirect('asset:create')
 
-    # TODO: drag to reorder fields
+    field_form_base = modelformset_factory(models.Field,
+                                           form=forms.FieldCreationForm,
+                                           can_delete=True)
 
     if request.method == 'POST':
-        formset = field_forms(queryset=queryset, data=request.POST)
-        # check whether it's valid:
+        formset = field_form_base(queryset=queryset, data=request.POST,
+                                  form_kwargs={'parent_object': db_object})
+
+        # Check whether it's valid:
         if formset.is_valid():
             # Process all the forms
-            formset.save(commit=False)
-            for field, _ in formset.changed_objects:
-                field.parent_object_id = parent_object
-                field.save()
-
-            for field in formset.new_objects:
-                field.parent_object_id = parent_object
-                field.save()
-
-            for field in formset.deleted_objects:
-                field.delete()
+            formset.save()
 
             # Show the same form on submit but with the new data
             queryset = models.Field.objects.filter(parent_object=db_object)
-            formset = field_forms(queryset=queryset)
+            formset = field_form_base(queryset=queryset,
+                                      form_kwargs={'parent_object': db_object})
     else:
-        formset = field_forms(queryset=queryset)
+        formset = field_form_base(queryset=queryset,
+                                  form_kwargs={'parent_object': db_object})
 
     return render(request, template, {'formset': formset})

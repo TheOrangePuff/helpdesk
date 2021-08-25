@@ -108,4 +108,24 @@ class ObjectCreationForm(forms.ModelForm):
 class FieldCreationForm(forms.ModelForm):
     class Meta:
         model = models.Field
-        fields = ['name', 'friendly_name', 'desc', 'data_type', 'friendly_field', 'order']
+        fields = ['name', 'friendly_name', 'desc', 'data_type', 'friendly_field', 'order', 'parent_object']
+        widgets = {
+            'order': forms.HiddenInput(),
+            'parent_object': forms.HiddenInput()
+        }
+
+    def __init__(self, *args, parent_object, **kwargs):
+        self.parent_object = models.Object.objects.get(name=parent_object)
+
+        super().__init__(*args, **kwargs)
+        self.fields.get('order').required = False
+        self.fields.get('parent_object').required = False
+
+    # If the field doesn't have a parent object, assign it a parent object
+    def clean_parent_object(self):
+        data = self.cleaned_data['parent_object']
+        if not data:
+            self.cleaned_data['parent_object'] = self.parent_object
+            data = self.cleaned_data['parent_object']
+
+        return data

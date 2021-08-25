@@ -242,12 +242,24 @@ class Field(models.Model):
     parent_object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name='parent')
     data_type = models.ForeignKey(DataType, on_delete=models.PROTECT)
     friendly_field = models.BooleanField(default=False)
-    order = models.fields.IntegerField(default=0)
+    order = models.fields.IntegerField()
     choice_type = models.ForeignKey(Object, on_delete=models.CASCADE, null=True, blank=True, related_name='choice_type')
-
-    def __str__(self):
-        return str(self.name)
 
     class Meta:
         ordering = ["parent_object", "order"]
         unique_together = (('parent_object', 'order'),)
+
+    def __str__(self):
+        return str(self.name)
+
+    def save(self, *args, **kwargs):
+        # Calculate the default order based of the other fields for the parent object
+        # If there are other fields for the parent object, the default behaviour is to
+        # give it the highest order number (placed at the bottom)
+        if not self.order:
+            siblings = Field.objects.filter(parent_object=self.parent_object)
+            if not siblings:
+                self.order = 0
+            else:
+                self.order = siblings.aggregate(models.Max('order')).get('order__max') + 1
+        super().save(*args, **kwargs)
