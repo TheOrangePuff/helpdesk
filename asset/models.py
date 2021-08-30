@@ -49,6 +49,9 @@ class DataType(models.Model):
     def __str__(self):
         return str(self.name)
 
+    def get_model(self):
+        return asset.models.__dict__.get(self.name)
+
 
 # Data
 class Data(models.Model):
