@@ -1,6 +1,8 @@
 import uuid
 
 from django.db import models
+from django.core.exceptions import ValidationError
+
 import asset
 
 
@@ -242,16 +244,28 @@ class Field(models.Model):
     data_type = models.ForeignKey(DataType, on_delete=models.PROTECT)
     friendly_field = models.BooleanField(default=False)
     order = models.fields.IntegerField()
-    choice_type = models.ForeignKey(Object, on_delete=models.CASCADE, null=True, blank=True, related_name='choice_type')
+    choice_type = models.ForeignKey(Object, on_delete=models.CASCADE, null=True, blank=True,
+                                    related_name='choice_type')
 
     class Meta:
         ordering = ["parent_object", "order"]
         unique_together = (('parent_object', 'order'),)
 
     def __str__(self):
-        return str(self.name)
+        return str(self.friendly_name)
 
-    def save(self, *args, **kwargs):
+    def clean(self):
+        data_type_model = self.data_type.get_model()
+        # Require choice_type be None if data type does not support it (e.g. ShortText)
+        if issubclass(data_type_model, Choice) and self.choice_type is None:
+            raise ValidationError('choice_type must be set when data_type is of base class Choice',
+                                  code='invalid')
+
+        # Require choice_type be set if data type does support it (e.g. SingleChoice)
+        if not issubclass(data_type_model, Choice) and self.choice_type is not None:
+            raise ValidationError('choice_type cannot be set when data_type is not of base class Choice',
+                                  code='invalid')
+
         # Calculate the default order based of the other fields for the parent object
         # If there are other fields for the parent object, the default behaviour is to
         # give it the highest order number (placed at the bottom)
@@ -261,4 +275,3 @@ class Field(models.Model):
                 self.order = 0
             else:
                 self.order = siblings.aggregate(models.Max('order')).get('order__max') + 1
-        super().save(*args, **kwargs)

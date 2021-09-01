@@ -24,6 +24,17 @@ class FieldCreationFormTestCase(TestCase):
                              data_type=DataType.objects.get(name='ShortText'),
                              order=2, parent_object=obj)
 
+        os = Object.objects.create(name='os', friendly_name='Operating Systems',
+                                   desc='An OS', active=True)
+
+        Field.objects.create(name='os_name', friendly_name='Name',
+                             desc='Name of the operating system',
+                             data_type=DataType.objects.get(name='ShortText'),
+                             order=0, friendly_field=True, parent_object=os)
+
+    def setUp(self):
+        self.operating_systems = Object.objects.get(name='os')
+
     def test_form_submit(self):
         form_data = {'name': 'operating_system', 'friendly_name': 'OS',
                      'desc': 'The operating system the laptop is running.',
@@ -38,6 +49,36 @@ class FieldCreationFormTestCase(TestCase):
         form_data = {'name': 'Operating System', 'friendly_name': 'OS',
                      'desc': 'The operating system the laptop is running.',
                      'data_type': 'ShortText'}
+
+        form = FieldCreationForm(parent_object='laptop', data=form_data)
+
+        self.assertFalse(form.is_valid())
+
+    def test_form_submit_valid_choice_type_and_valid_data_type(self):
+        form_data = {'name': 'operating_system', 'friendly_name': 'OS',
+                     'desc': 'The operating system the laptop is running.',
+                     'data_type': 'SingleChoice',
+                     'choice_type': self.operating_systems
+                     }
+
+        form = FieldCreationForm(parent_object='laptop', data=form_data)
+
+        self.assertTrue(form.is_valid())
+
+    def test_form_submit_choice_type_and_invalid_data_type(self):
+        form_data = {'name': 'operating_system', 'friendly_name': 'OS',
+                     'desc': 'The operating system the laptop is running.',
+                     'data_type': 'ShortText', 'choice_type': self.operating_systems
+                     }
+
+        form = FieldCreationForm(parent_object='laptop', data=form_data)
+
+        self.assertFalse(form.is_valid())
+
+        form_data = {'name': 'operating_system', 'friendly_name': 'OS',
+                     'desc': 'The operating system the laptop is running.',
+                     'data_type': 'SingleChoice'
+                     }
 
         form = FieldCreationForm(parent_object='laptop', data=form_data)
 
