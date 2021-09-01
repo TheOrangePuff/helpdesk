@@ -46,6 +46,7 @@ class FieldCreationFormTestCase(TestCase):
         self.assertTrue(form.save())
 
     def test_form_invalid(self):
+        # Invalid as slug field name cannot contain spaces
         form_data = {'name': 'Operating System', 'friendly_name': 'OS',
                      'desc': 'The operating system the laptop is running.',
                      'data_type': 'ShortText'}
